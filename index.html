@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OvalEdge Recipe ROI Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ac:#33CCFF;--ac-dark:#1AA8DB;--tint:#EAF9FF;--ink:#1F2733;--mut:#66707F;--line:#E3EDF2;--ok:#1C9E7A;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:#FAFDFF;min-height:100vh}
+.hero{background:var(--ac);color:#fff;padding:38px 28px 30px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-80px;top:-80px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.14)}
+.hero::before{content:"";position:absolute;right:60px;bottom:-120px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.10)}
+.wrap{max-width:980px;margin:0 auto;padding:0 4px}
+.brand{font-family:'Poppins';font-weight:700;font-size:15px;letter-spacing:.14em}
+.hero h1{font-family:'Poppins';font-weight:700;font-size:clamp(24px,4vw,34px);margin-top:10px;line-height:1.15}
+.hero p{margin-top:8px;font-size:14.5px;max-width:640px;opacity:.95}
+.tabs{display:flex;gap:10px;margin-top:22px;position:relative;z-index:2;flex-wrap:wrap}
+.tab{font-family:'Poppins';font-weight:600;font-size:13.5px;padding:10px 18px;border-radius:10px 10px 0 0;background:rgba(255,255,255,.22);color:#fff;border:none;cursor:pointer}
+.tab.active{background:#FAFDFF;color:var(--ac-dark)}
+main{max-width:980px;margin:0 auto;padding:26px 24px 60px}
+.grid{display:grid;grid-template-columns:1.25fr .9fr;gap:26px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px}
+h2{font-family:'Poppins';font-weight:600;font-size:17px;color:var(--ac-dark);margin-bottom:4px}
+.sub{font-size:12.5px;color:var(--mut);margin-bottom:16px}
+.ctl{margin-bottom:18px}
+.ctl label{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px}
+.ctl label .val{color:var(--ac-dark);font-family:'Poppins'}
+input[type=range]{width:100%;accent-color:var(--ac);height:26px}
+.hint{font-size:11.5px;color:var(--mut);margin-top:2px}
+.toggleRow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}
+.toggleRow:first-of-type{border-top:none}
+.toggleRow span{font-size:13px;font-weight:600}
+.sw{position:relative;width:44px;height:24px;flex:none}
+.sw input{opacity:0;width:0;height:0}
+.slider{position:absolute;cursor:pointer;inset:0;background:#CFE2EC;border-radius:24px;transition:.2s}
+.slider::before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked + .slider{background:var(--ac)}
+.sw input:checked + .slider::before{transform:translateX(20px)}
+.total{background:var(--tint);border:1px solid #BFE9F8;border-radius:14px;padding:22px;text-align:center;margin-bottom:18px}
+.total .num{font-family:'Poppins';font-weight:700;font-size:clamp(28px,4vw,38px);color:var(--ac-dark)}
+.total .lbl{font-size:12.5px;color:var(--mut);margin-top:4px}
+.line{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-top:1px solid var(--line);font-size:13px}
+.line:first-child{border-top:none}
+.line b{font-family:'Poppins';font-weight:600;color:var(--ink)}
+.line .amt{font-family:'Poppins';font-weight:600;color:var(--ok);white-space:nowrap}
+.line .hrs{font-size:11.5px;color:var(--mut)}
+.note{margin-top:18px;background:#fff;border:1px dashed var(--ac);border-radius:12px;padding:14px 16px;font-size:12.3px;color:var(--mut);line-height:1.55}
+.note b{color:var(--ac-dark)}
+.hidden{display:none}
+footer{max-width:980px;margin:0 auto;padding:0 24px 40px;font-size:11.5px;color:var(--mut)}
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+ <div class="brand">OVALEDGE &middot; RECIPE ROI CALCULATOR</div>
+ <h1>Estimate the value in your environment</h1>
+ <p>Adjust the variables to match your organization. Everything recalculates live. Defaults are set deliberately conservative &mdash; the estimate should under-promise. Replace them with your own figures to build a business case you can defend internally.</p>
+ <div class="tabs">
+  <button class="tab active" id="tabDQA" onclick="show('dqa')">Data Quality Assessment</button>
+  <button class="tab" id="tabCDE" onclick="show('cde')">CDE Rule Coverage</button>
+  <button class="tab" id="tabCTI" onclick="show('cti')">Critical Tables Identifier</button>
+ </div>
+</div></div>
+
+<main>
+<!-- ================= DQA ================= -->
+<section id="dqa">
+<div class="grid">
+ <div class="card">
+  <h2>Your environment</h2>
+  <div class="sub">Data Quality Assessment recipe &mdash; profiling health, cross-system consistency, and rule-library hygiene in one automated run.</div>
+  <div class="ctl"><label>Fully-loaded analyst rate <span class="val" id="dRateV"></span></label>
+   <input type="range" id="dRate" min="40" max="250" step="5" value="75"><div class="hint">$/hour, salary + overhead</div></div>
+  <div class="ctl"><label>Objects in your catalog (tables + views) <span class="val" id="dObjV"></span></label>
+   <input type="range" id="dObj" min="500" max="50000" step="500" value="5000"><div class="hint">Assets in scope for profiling health checks</div></div>
+  <div class="ctl"><label>Profiling reviews per year <span class="val" id="dProfFreqV"></span></label>
+   <input type="range" id="dProfFreq" min="0" max="12" step="1" value="4"></div>
+  <div class="ctl"><label>Manual review effort per 1,000 objects <span class="val" id="dPerKV"></span></label>
+   <input type="range" id="dPerK" min="1" max="12" step="1" value="2"><div class="hint">Hours to manually check profiling status, freshness &amp; failures per 1,000 objects</div></div>
+  <div class="ctl"><label>Rule-library audits per year <span class="val" id="dAudFreqV"></span></label>
+   <input type="range" id="dAudFreq" min="0" max="12" step="1" value="4"></div>
+  <div class="ctl"><label>Manual hours per rule-library audit <span class="val" id="dAudHrsV"></span></label>
+   <input type="range" id="dAudHrs" min="2" max="60" step="2" value="8"></div>
+  <h2 style="margin-top:6px">What the recipe replaces</h2>
+  <div class="sub">Toggle off any driver that doesn't apply to you.</div>
+  <div class="toggleRow"><span>Profiling health reviews</span><label class="sw"><input type="checkbox" id="dTProf" checked><span class="slider"></span></label></div>
+  <div class="toggleRow"><span>DQ rule-library audits</span><label class="sw"><input type="checkbox" id="dTAud" checked><span class="slider"></span></label></div>
+  <div class="ctl" style="margin-top:14px"><label>Recipe-assisted effort retained <span class="val" id="dResidV"></span></label>
+   <input type="range" id="dResid" min="0" max="50" step="5" value="25"><div class="hint">% of manual time still spent reviewing the recipe's packaged output</div></div>
+ </div>
+ <div>
+  <div class="total"><div class="num" id="dTotal">$0</div><div class="lbl">Estimated annual labor value &middot; <span id="dHours">0</span> analyst-hours saved</div></div>
+  <div class="card">
+   <h2>Breakdown</h2><div class="sub">Annual savings by value driver</div>
+   <div class="line"><div><b>Profiling health reviews</b><div class="hrs" id="dL1h"></div></div><span class="amt" id="dL1"></span></div>
+   <div class="line"><div><b>Rule-library audits</b><div class="hrs" id="dL3h"></div></div><span class="amt" id="dL3"></span></div>
+  </div>
+  <div class="note"><b>How to read this:</b> this model counts labor efficiency only. It deliberately excludes risk avoidance &mdash; schema inconsistencies caught before they break integrations, or a compliance finding prevented &mdash; which is often larger than the labor value shown. Effort scales with your object count, so re-check the estimate as your catalog grows. The recipe is SQL-only (no AI/LLM calls), so run cost stays flat as you scale. All defaults are deliberately conservative starting points, not measured OvalEdge benchmarks.</div>
+ </div>
+</div>
+</section>
+
+<!-- ================= CDE ================= -->
+<section id="cde" class="hidden">
+<div class="grid">
+ <div class="card">
+  <h2>Your environment</h2>
+  <div class="sub">CDE Rule Coverage recipe &mdash; automated verification that every Critical Data Element has at least one active DQ rule.</div>
+  <div class="ctl"><label>Fully-loaded analyst / steward rate <span class="val" id="cRateV"></span></label>
+   <input type="range" id="cRate" min="40" max="250" step="5" value="75"></div>
+  <div class="ctl"><label>Number of CDEs in your program <span class="val" id="cCdeV"></span></label>
+   <input type="range" id="cCde" min="25" max="2000" step="25" value="150"></div>
+  <div class="ctl"><label>Minutes to manually verify one CDE's rule coverage <span class="val" id="cMinV"></span></label>
+   <input type="range" id="cMin" min="2" max="30" step="1" value="4"><div class="hint">Looking up rule assignments + active status per element</div></div>
+  <div class="ctl"><label>Coverage reviews per year <span class="val" id="cFreqV"></span></label>
+   <input type="range" id="cFreq" min="1" max="12" step="1" value="2"><div class="hint">Quarterly governance reviews = 4</div></div>
+  <div class="ctl"><label>Audits / regulatory exams per year <span class="val" id="cAudNV"></span></label>
+   <input type="range" id="cAudN" min="0" max="6" step="1" value="1"></div>
+  <div class="ctl"><label>Hours to reconstruct coverage evidence per audit <span class="val" id="cAudHrsV"></span></label>
+   <input type="range" id="cAudHrs" min="4" max="80" step="2" value="12"><div class="hint">Manual evidence-gathering the recipe replaces with a standing report</div></div>
+  <h2 style="margin-top:6px">Value drivers</h2>
+  <div class="toggleRow"><span>Periodic coverage verification</span><label class="sw"><input type="checkbox" id="cTVer" checked><span class="slider"></span></label></div>
+  <div class="toggleRow"><span>Audit evidence preparation</span><label class="sw"><input type="checkbox" id="cTAud" checked><span class="slider"></span></label></div>
+  <div class="ctl" style="margin-top:14px"><label>Recipe-assisted effort retained <span class="val" id="cResidV"></span></label>
+   <input type="range" id="cResid" min="0" max="50" step="5" value="25"><div class="hint">% of manual time still spent reviewing recipe output</div></div>
+ </div>
+ <div>
+  <div class="total"><div class="num" id="cTotal">$0</div><div class="lbl">Estimated annual labor value &middot; <span id="cHours">0</span> hours saved</div></div>
+  <div class="card">
+   <h2>Breakdown</h2><div class="sub">Annual savings by value driver</div>
+   <div class="line"><div><b>Coverage verification</b><div class="hrs" id="cL1h"></div></div><span class="amt" id="cL1"></span></div>
+   <div class="line"><div><b>Audit evidence preparation</b><div class="hrs" id="cL2h"></div></div><span class="amt" id="cL2"></span></div>
+  </div>
+  <div class="note"><b>How to read this:</b> labor efficiency only. The larger &mdash; unquantified &mdash; value is risk: an uncovered CDE feeding an error into a regulatory filing or an executive decision typically costs far more than everything shown here. The recipe is SQL-only, so it can run continuously at no incremental analyst cost. Defaults are deliberately conservative starting points, not measured OvalEdge benchmarks.</div>
+ </div>
+</div>
+</section>
+
+<!-- ================= CTI ================= -->
+<section id="cti" class="hidden">
+<div class="grid">
+ <div class="card">
+  <h2>Your environment</h2>
+  <div class="sub">Critical Tables Identifier recipe &mdash; an objective 0&ndash;100 criticality score for every table, replacing debate-driven prioritization.</div>
+  <div class="ctl"><label>Fully-loaded analyst / steward rate <span class="val" id="tRateV"></span></label>
+   <input type="range" id="tRate" min="40" max="250" step="5" value="75"></div>
+  <div class="ctl"><label>Tables in your catalog <span class="val" id="tTblV"></span></label>
+   <input type="range" id="tTbl" min="500" max="50000" step="500" value="5000"><div class="hint">Every table must be assessed to find the critical ones &mdash; and their CDEs</div></div>
+  <div class="ctl"><label>Minutes to manually assess one table's criticality <span class="val" id="tMinV"></span></label>
+   <input type="range" id="tMin" min="1" max="15" step="1" value="2"><div class="hint">Checking sensitivity, usage, lineage &amp; quality signals per table by hand</div></div>
+  <div class="ctl"><label>Full criticality assessments per year <span class="val" id="tAssV"></span></label>
+   <input type="range" id="tAss" min="0" max="4" step="1" value="1"><div class="hint">Catalog-wide sweeps to identify critical tables / CDE candidates</div></div>
+  <div class="ctl"><label>Prioritization / planning cycles per year <span class="val" id="tCycV"></span></label>
+   <input type="range" id="tCyc" min="1" max="12" step="1" value="4"><div class="hint">Quarterly governance planning = 4</div></div>
+  <div class="ctl"><label>Manual hours per prioritization cycle <span class="val" id="tPlanHrsV"></span></label>
+   <input type="range" id="tPlanHrs" min="8" max="200" step="4" value="20"><div class="hint">Meetings, table-by-table review, priority spreadsheets</div></div>
+  <div class="ctl"><label>Hours per quarter maintaining priority lists <span class="val" id="tUpkV"></span></label>
+   <input type="range" id="tUpk" min="0" max="60" step="2" value="8"><div class="hint">Priority spreadsheets, status re-checks, re-litigating rankings in meetings</div></div>
+  <h2 style="margin-top:6px">Value drivers</h2>
+  <div class="toggleRow"><span>Manual criticality assessment (table-by-table)</span><label class="sw"><input type="checkbox" id="tTAss" checked><span class="slider"></span></label></div>
+  <div class="toggleRow"><span>Prioritization planning effort</span><label class="sw"><input type="checkbox" id="tTPlan" checked><span class="slider"></span></label></div>
+  <div class="toggleRow"><span>Priority-list upkeep</span><label class="sw"><input type="checkbox" id="tTCur" checked><span class="slider"></span></label></div>
+  <div class="ctl" style="margin-top:14px"><label>Recipe-assisted effort retained <span class="val" id="tResidV"></span></label>
+   <input type="range" id="tResid" min="0" max="50" step="5" value="25"><div class="hint">% of manual time still spent reviewing the ranked output</div></div>
+ </div>
+ <div>
+  <div class="total"><div class="num" id="tTotal">$0</div><div class="lbl">Estimated annual labor value &middot; <span id="tHours">0</span> hours saved</div></div>
+  <div class="card">
+   <h2>Breakdown</h2><div class="sub">Annual savings by value driver</div>
+   <div class="line"><div><b>Criticality assessment</b><div class="hrs" id="tL0h"></div></div><span class="amt" id="tL0"></span></div>
+   <div class="line"><div><b>Prioritization planning</b><div class="hrs" id="tL1h"></div></div><span class="amt" id="tL1"></span></div>
+   <div class="line"><div><b>Priority-list upkeep</b><div class="hrs" id="tL2h"></div></div><span class="amt" id="tL2"></span></div>
+  </div>
+  <div class="note"><b>How to read this:</b> a deliberately conservative model &mdash; labor efficiency only, counting just the planning and upkeep effort the ranked list replaces. It excludes the two larger benefits: steward capacity redirected from low-impact tables to critical ones, and risk avoidance (a sensitive table surfaced before an audit finding). Defaults are conservative starting points, not measured OvalEdge benchmarks.</div>
+ </div>
+</div>
+</section>
+</main>
+<footer>&copy; OvalEdge &middot; Illustrative ROI framework accompanying the Governance Recipe briefs. Figures shown are estimates driven entirely by the inputs above; replace defaults with your organization's own numbers.</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>"$"+Math.round(n).toLocaleString();
+const fh=n=>Math.round(n).toLocaleString();
+function show(which){
+  ['dqa','cde','cti'].forEach(k=>$(k).classList.toggle('hidden',which!==k));
+  $('tabDQA').classList.toggle('active',which==='dqa');
+  $('tabCDE').classList.toggle('active',which==='cde');
+  $('tabCTI').classList.toggle('active',which==='cti');
+}
+function calcD(){
+  const rate=+$('dRate').value, resid=+$('dResid').value/100;
+  const obj=+$('dObj').value, pf=+$('dProfFreq').value, pk=+$('dPerK').value;
+  const af=+$('dAudFreq').value, ah=+$('dAudHrs').value;
+  $('dRateV').textContent="$"+rate+"/hr"; $('dResidV').textContent=Math.round(resid*100)+"%";
+  $('dObjV').textContent=obj.toLocaleString();
+  $('dProfFreqV').textContent=pf+"\u00d7"; $('dPerKV').textContent=pk+" hrs";
+  $('dAudFreqV').textContent=af+"\u00d7"; $('dAudHrsV').textContent=ah+" hrs";
+  const perReview=(obj/1000)*pk;
+  const s1=$('dTProf').checked? pf*perReview*(1-resid):0;
+  const s3=$('dTAud').checked?  af*ah*(1-resid):0;
+  $('dL1').textContent=fmt(s1*rate); $('dL1h').textContent="\u2248 "+fh(s1)+" hrs/yr ("+obj.toLocaleString()+" objects \u00d7 "+pk+" hrs/1,000 \u00d7 "+pf+"\u00d7)";
+  $('dL3').textContent=fmt(s3*rate); $('dL3h').textContent="\u2248 "+fh(s3)+" hrs/yr";
+  $('dTotal').textContent=fmt((s1+s3)*rate);
+  $('dHours').textContent=fh(s1+s3);
+}
+function calcC(){
+  const rate=+$('cRate').value, resid=+$('cResid').value/100;
+  const n=+$('cCde').value, m=+$('cMin').value, f=+$('cFreq').value;
+  const an=+$('cAudN').value, ah=+$('cAudHrs').value;
+  $('cRateV').textContent="$"+rate+"/hr"; $('cResidV').textContent=Math.round(resid*100)+"%";
+  $('cCdeV').textContent=n.toLocaleString(); $('cMinV').textContent=m+" min";
+  $('cFreqV').textContent=f+"\u00d7"; $('cAudNV').textContent=an; $('cAudHrsV').textContent=ah+" hrs";
+  const s1=$('cTVer').checked? (n*m/60)*f*(1-resid):0;
+  const s2=$('cTAud').checked? an*ah*(1-resid):0;
+  $('cL1').textContent=fmt(s1*rate); $('cL1h').textContent="\u2248 "+fh(s1)+" hrs/yr ("+n.toLocaleString()+" CDEs \u00d7 "+m+" min \u00d7 "+f+"\u00d7)";
+  $('cL2').textContent=fmt(s2*rate); $('cL2h').textContent="\u2248 "+fh(s2)+" hrs/yr";
+  $('cTotal').textContent=fmt((s1+s2)*rate);
+  $('cHours').textContent=fh(s1+s2);
+}
+function calcT(){
+  const rate=+$('tRate').value, resid=+$('tResid').value/100;
+  const cyc=+$('tCyc').value, ph=+$('tPlanHrs').value;
+  const upk=+$('tUpk').value;
+  const tbl=+$('tTbl').value, tmin=+$('tMin').value, ass=+$('tAss').value;
+  $('tRateV').textContent="$"+rate+"/hr"; $('tResidV').textContent=Math.round(resid*100)+"%";
+  $('tCycV').textContent=cyc+"\u00d7"; $('tPlanHrsV').textContent=ph+" hrs";
+  $('tUpkV').textContent=upk+" hrs";
+  $('tTblV').textContent=tbl.toLocaleString(); $('tMinV').textContent=tmin+" min"; $('tAssV').textContent=ass+"\u00d7";
+  const s0=$('tTAss').checked? (tbl*tmin/60)*ass*(1-resid):0;
+  const s1=$('tTPlan').checked? cyc*ph*(1-resid):0;
+  const s2=$('tTCur').checked? upk*4*(1-resid):0;
+  $('tL0').textContent=fmt(s0*rate); $('tL0h').textContent="\u2248 "+fh(s0)+" hrs/yr ("+tbl.toLocaleString()+" tables \u00d7 "+tmin+" min \u00d7 "+ass+"\u00d7)";
+  $('tL1').textContent=fmt(s1*rate); $('tL1h').textContent="\u2248 "+fh(s1)+" hrs/yr ("+cyc+" cycles \u00d7 "+ph+" hrs)";
+  $('tL2').textContent=fmt(s2*rate); $('tL2h').textContent="\u2248 "+fh(s2)+" hrs/yr ("+upk+" hrs \u00d7 4 quarters)";
+  $('tTotal').textContent=fmt((s0+s1+s2)*rate);
+  $('tHours').textContent=fh(s0+s1+s2);
+}
+document.querySelectorAll('#dqa input').forEach(i=>i.addEventListener('input',calcD));
+document.querySelectorAll('#cde input').forEach(i=>i.addEventListener('input',calcC));
+document.querySelectorAll('#cti input').forEach(i=>i.addEventListener('input',calcT));
+calcD();calcC();calcT();
+</script>
+</body>
+</html>
