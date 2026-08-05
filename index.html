@@ -59,6 +59,8 @@ footer{max-width:980px;margin:0 auto;padding:0 24px 40px;font-size:11.5px;color:
  <p>Adjust the variables to match your organization. Everything recalculates live. Defaults are set deliberately conservative &mdash; the estimate should under-promise. Replace them with your own figures to build a business case you can defend internally.</p>
  <div class="tabs">
   <button class="tab active" id="tabDQA" onclick="show('dqa')">Data Quality Assessment</button>
+  <button class="tab" id="tabGLA" onclick="show('gla')">Glossary Accelerator</button>
+  <button class="tab" id="tabMDC" onclick="show('mdc')">Metric Conflict Resolver</button>
   <button class="tab" id="tabCDE" onclick="show('cde')">CDE Rule Coverage</button>
   <button class="tab" id="tabCTI" onclick="show('cti')">Critical Tables Identifier</button>
  </div>
@@ -98,6 +100,76 @@ footer{max-width:980px;margin:0 auto;padding:0 24px 40px;font-size:11.5px;color:
    <div class="line"><div><b>Rule-library audits</b><div class="hrs" id="dL3h"></div></div><span class="amt" id="dL3"></span></div>
   </div>
   <div class="note"><b>How to read this:</b> this model counts labor efficiency only. It deliberately excludes risk avoidance &mdash; schema inconsistencies caught before they break integrations, or a compliance finding prevented &mdash; which is often larger than the labor value shown. Effort scales with your object count, so re-check the estimate as your catalog grows. The recipe is SQL-only (no AI/LLM calls), so run cost stays flat as you scale. All defaults are deliberately conservative starting points, not measured OvalEdge benchmarks.</div>
+ </div>
+</div>
+</section>
+
+<!-- ================= GLA (Recipe 21) ================= -->
+<section id="gla" class="hidden">
+<div class="grid">
+ <div class="card">
+  <h2>Your environment</h2>
+  <div class="sub">Business Glossary Accelerator with Conflict Detection &mdash; evidence-based term drafting with formula-conflict detection before onboarding.</div>
+  <div class="ctl"><label>Fully-loaded steward / analyst rate <span class="val" id="gRateV"></span></label>
+   <input type="range" id="gRate" min="40" max="250" step="5" value="75"></div>
+  <div class="ctl"><label>Glossary terms to onboard <span class="val" id="gTermV"></span></label>
+   <input type="range" id="gTerm" min="25" max="1000" step="25" value="100"><div class="hint">Terms planned for creation or standardization this year</div></div>
+  <div class="ctl"><label>Manual hours per term (draft, verify, classify) <span class="val" id="gHrsV"></span></label>
+   <input type="range" id="gHrs" min="0.5" max="6" step="0.5" value="1"><div class="hint">Finding usage, checking formulas across reports, drafting the definition, domain classification</div></div>
+  <div class="ctl"><label>Metric conflicts you expect to investigate per year <span class="val" id="gConV"></span></label>
+   <input type="range" id="gCon" min="0" max="60" step="2" value="6"><div class="hint">Same-term-different-formula cases requiring manual investigation today</div></div>
+  <div class="ctl"><label>Manual hours to investigate one conflict <span class="val" id="gConHrsV"></span></label>
+   <input type="range" id="gConHrs" min="1" max="24" step="1" value="4"><div class="hint">Opening reports, comparing formulas, tracing lineage by hand</div></div>
+  <h2 style="margin-top:6px">Value drivers</h2>
+  <div class="toggleRow"><span>Term drafting &amp; verification</span><label class="sw"><input type="checkbox" id="gTDraft" checked><span class="slider"></span></label></div>
+  <div class="toggleRow"><span>Conflict investigation</span><label class="sw"><input type="checkbox" id="gTCon" checked><span class="slider"></span></label></div>
+  <div class="ctl" style="margin-top:14px"><label>Recipe-assisted effort retained <span class="val" id="gResidV"></span></label>
+   <input type="range" id="gResid" min="0" max="60" step="5" value="30"><div class="hint">Stewards still review and approve every generated term &mdash; kept high deliberately</div></div>
+ </div>
+ <div>
+  <div class="total"><div class="num" id="gTotal">$0</div><div class="lbl">Estimated annual labor value &middot; <span id="gHours">0</span> hours saved</div></div>
+  <div class="card">
+   <h2>Breakdown</h2><div class="sub">Annual savings by value driver</div>
+   <div class="line"><div><b>Term drafting &amp; verification</b><div class="hrs" id="gL1h"></div></div><span class="amt" id="gL1"></span></div>
+   <div class="line"><div><b>Conflict investigation</b><div class="hrs" id="gL2h"></div></div><span class="amt" id="gL2"></span></div>
+  </div>
+  <div class="note"><b>How to read this:</b> labor efficiency only, with retained effort deliberately set higher (30%) because glossary work keeps a human approval step by design. Excluded &mdash; and larger: the cost of onboarding a conflicted definition into the glossary and standardizing on the wrong formula, and the reporting-trust value of catching drift before it institutionalizes. Defaults are deliberately conservative starting points, not measured OvalEdge benchmarks.</div>
+ </div>
+</div>
+</section>
+
+<!-- ================= MDC (Recipe 23) ================= -->
+<section id="mdc" class="hidden">
+<div class="grid">
+ <div class="card">
+  <h2>Your environment</h2>
+  <div class="sub">Metric Definition Conflict Resolver &mdash; scans every dashboard for same-label / different-formula or different-source conflicts, with named owners per fix.</div>
+  <div class="ctl"><label>Fully-loaded analyst / BI rate <span class="val" id="mRateV"></span></label>
+   <input type="range" id="mRate" min="40" max="250" step="5" value="75"></div>
+  <div class="ctl"><label>Report columns across dashboards <span class="val" id="mColV"></span></label>
+   <input type="range" id="mCol" min="200" max="20000" step="200" value="2000"><div class="hint">The reporting surface a manual audit would have to cover</div></div>
+  <div class="ctl"><label>Minutes to manually audit one report column <span class="val" id="mMinV"></span></label>
+   <input type="range" id="mMin" min="1" max="10" step="1" value="2"><div class="hint">Opening the report, reading the formula, tracing the source mapping</div></div>
+  <div class="ctl"><label>Full reporting-surface audits per year <span class="val" id="mAudV"></span></label>
+   <input type="range" id="mAud" min="0" max="4" step="1" value="1"><div class="hint">How often you would sweep all dashboards for definition drift</div></div>
+  <div class="ctl"><label>KPI discrepancy incidents per year <span class="val" id="mIncV"></span></label>
+   <input type="range" id="mInc" min="0" max="24" step="1" value="4"><div class="hint">"Why do these two dashboards disagree?" investigations</div></div>
+  <div class="ctl"><label>Hours per incident (investigate + reconcile) <span class="val" id="mIncHrsV"></span></label>
+   <input type="range" id="mIncHrs" min="2" max="40" step="1" value="6"><div class="hint">Cross-team effort to trace and explain one discrepancy</div></div>
+  <h2 style="margin-top:6px">Value drivers</h2>
+  <div class="toggleRow"><span>Reporting-surface audit</span><label class="sw"><input type="checkbox" id="mTAud" checked><span class="slider"></span></label></div>
+  <div class="toggleRow"><span>Discrepancy incident investigation</span><label class="sw"><input type="checkbox" id="mTInc" checked><span class="slider"></span></label></div>
+  <div class="ctl" style="margin-top:14px"><label>Recipe-assisted effort retained <span class="val" id="mResidV"></span></label>
+   <input type="range" id="mResid" min="0" max="50" step="5" value="25"><div class="hint">% of manual time still spent reviewing conflicts and assigning fixes</div></div>
+ </div>
+ <div>
+  <div class="total"><div class="num" id="mTotal">$0</div><div class="lbl">Estimated annual labor value &middot; <span id="mHours">0</span> hours saved</div></div>
+  <div class="card">
+   <h2>Breakdown</h2><div class="sub">Annual savings by value driver</div>
+   <div class="line"><div><b>Reporting-surface audit</b><div class="hrs" id="mL1h"></div></div><span class="amt" id="mL1"></span></div>
+   <div class="line"><div><b>Incident investigation</b><div class="hrs" id="mL2h"></div></div><span class="amt" id="mL2"></span></div>
+  </div>
+  <div class="note"><b>How to read this:</b> labor efficiency only. The incident line counts investigation effort, not the cost of the incident itself &mdash; a wrong KPI in a board meeting or filing carries reputational and decision costs this model deliberately does not price. Conflicts also arrive with named owners (chart owners, stewards, custodians), shortening remediation in ways not counted here. Defaults are deliberately conservative starting points, not measured OvalEdge benchmarks.</div>
  </div>
 </div>
 </section>
@@ -185,10 +257,12 @@ const $=id=>document.getElementById(id);
 const fmt=n=>"$"+Math.round(n).toLocaleString();
 const fh=n=>Math.round(n).toLocaleString();
 function show(which){
-  ['dqa','cde','cti'].forEach(k=>$(k).classList.toggle('hidden',which!==k));
+  ['dqa','cde','cti','gla','mdc'].forEach(k=>$(k).classList.toggle('hidden',which!==k));
   $('tabDQA').classList.toggle('active',which==='dqa');
   $('tabCDE').classList.toggle('active',which==='cde');
   $('tabCTI').classList.toggle('active',which==='cti');
+  $('tabGLA').classList.toggle('active',which==='gla');
+  $('tabMDC').classList.toggle('active',which==='mdc');
 }
 function calcD(){
   const rate=+$('dRate').value, resid=+$('dResid').value/100;
@@ -238,10 +312,41 @@ function calcT(){
   $('tTotal').textContent=fmt((s0+s1+s2)*rate);
   $('tHours').textContent=fh(s0+s1+s2);
 }
+
+function calcG(){
+  const rate=+$('gRate').value, resid=+$('gResid').value/100;
+  const term=+$('gTerm').value, hrs=+$('gHrs').value;
+  const con=+$('gCon').value, ch=+$('gConHrs').value;
+  $('gRateV').textContent="$"+rate+"/hr"; $('gResidV').textContent=Math.round(resid*100)+"%";
+  $('gTermV').textContent=term.toLocaleString(); $('gHrsV').textContent=hrs+" hrs";
+  $('gConV').textContent=con; $('gConHrsV').textContent=ch+" hrs";
+  const s1=$('gTDraft').checked? term*hrs*(1-resid):0;
+  const s2=$('gTCon').checked? con*ch*(1-resid):0;
+  $('gL1').textContent=fmt(s1*rate); $('gL1h').textContent="\u2248 "+fh(s1)+" hrs/yr ("+term+" terms \u00d7 "+hrs+" hrs)";
+  $('gL2').textContent=fmt(s2*rate); $('gL2h').textContent="\u2248 "+fh(s2)+" hrs/yr ("+con+" conflicts \u00d7 "+ch+" hrs)";
+  $('gTotal').textContent=fmt((s1+s2)*rate);
+  $('gHours').textContent=fh(s1+s2);
+}
+function calcM(){
+  const rate=+$('mRate').value, resid=+$('mResid').value/100;
+  const col=+$('mCol').value, mn=+$('mMin').value, aud=+$('mAud').value;
+  const inc=+$('mInc').value, ih=+$('mIncHrs').value;
+  $('mRateV').textContent="$"+rate+"/hr"; $('mResidV').textContent=Math.round(resid*100)+"%";
+  $('mColV').textContent=col.toLocaleString(); $('mMinV').textContent=mn+" min";
+  $('mAudV').textContent=aud+"\u00d7"; $('mIncV').textContent=inc; $('mIncHrsV').textContent=ih+" hrs";
+  const s1=$('mTAud').checked? (col*mn/60)*aud*(1-resid):0;
+  const s2=$('mTInc').checked? inc*ih*(1-resid):0;
+  $('mL1').textContent=fmt(s1*rate); $('mL1h').textContent="\u2248 "+fh(s1)+" hrs/yr ("+col.toLocaleString()+" columns \u00d7 "+mn+" min \u00d7 "+aud+"\u00d7)";
+  $('mL2').textContent=fmt(s2*rate); $('mL2h').textContent="\u2248 "+fh(s2)+" hrs/yr ("+inc+" incidents \u00d7 "+ih+" hrs)";
+  $('mTotal').textContent=fmt((s1+s2)*rate);
+  $('mHours').textContent=fh(s1+s2);
+}
 document.querySelectorAll('#dqa input').forEach(i=>i.addEventListener('input',calcD));
 document.querySelectorAll('#cde input').forEach(i=>i.addEventListener('input',calcC));
 document.querySelectorAll('#cti input').forEach(i=>i.addEventListener('input',calcT));
-calcD();calcC();calcT();
+document.querySelectorAll('#gla input').forEach(i=>i.addEventListener('input',calcG));
+document.querySelectorAll('#mdc input').forEach(i=>i.addEventListener('input',calcM));
+calcD();calcC();calcT();calcG();calcM();
 </script>
 </body>
 </html>
